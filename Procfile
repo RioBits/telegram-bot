@@ -1,1 +1,1 @@
-worker: npm run ts-node
+worker: npm start
