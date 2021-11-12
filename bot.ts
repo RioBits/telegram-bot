@@ -16,7 +16,7 @@ interface apiResponse {
   }
 }
 
-bot.onText(/\/price/, async (msg) => {
+bot.onText(/\/prices/, async (msg) => {
   const chatId = msg.chat.id
 
   const {
