@@ -43,7 +43,9 @@ bot.onText(/^\/price$/, async (msg) => {
 
   return bot.sendMessage(
     chatId,
-    `BTC => USD: ${BtcAmount}\nETH => USD: ${EthAmount}\nDOGE => USD: ${DogeAmount}\n`
+    `BTC => USD: ${withCommas(BtcAmount)}\nETH => USD: ${withCommas(
+      EthAmount
+    )}\nDOGE => USD: ${withCommas(DogeAmount)}\n`
   )
 })
 
@@ -76,7 +78,7 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
 
     const { data } = response.data
 
-    bot.sendMessage(chatId, `${data.base} => USD: ${data.amount}`)
+    bot.sendMessage(chatId, `${data.base} => USD: ${withCommas(data.amount)}`)
   } catch (err) {
     console.error(err)
     bot.sendMessage(
@@ -85,3 +87,7 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
     )
   }
 })
+
+function withCommas(value: string) {
+  return Number(value).toLocaleString('en-us')
+}
