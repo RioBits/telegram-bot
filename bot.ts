@@ -124,11 +124,7 @@ bot.onText(/^\/price$/, async (msg) => {
 
     bot.sendMessage(
       chatId,
-      `Choosed default: USD\n\nTRY: ${fixed2(rates.TRY)}\n\nEUR: ${fixed2(
-        rates.EUR
-      )}\n\nSAR: ${fixed2(rates.SAR)}\n\nAED: ${fixed2(
-        rates.AED
-      )}\n\nDate: ${date}`
+      `Choosed default: USD\n\nTRY: ${rates.TRY}\n\nEUR: ${rates.EUR}\n\nSAR: ${rates.SAR}\n\nAED: ${rates.AED}\n\nDate: ${date}`
     )
   } catch (err) {
     console.error(err)
@@ -155,22 +151,12 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
     if (base !== resp) {
       bot.sendMessage(
         chatId,
-        `You entered incorrect currency!\ntry something like this:\n\n/price TRY\n\nchoosed default: EURO\n\nBase: ${base}\n\nTRY: ${fixed2(
-          rates.TRY
-        )}\n\nEUR: ${fixed2(rates.EUR)}\n\nUSD: ${fixed2(
-          rates.USD
-        )}\n\nSAR: ${fixed2(rates.SAR)}\n\nAED: ${fixed2(
-          rates.AED
-        )}\n\nDate: ${date}`
+        `You entered incorrect currency!\ntry something like this:\n\n/price TRY\n\nchoosed default: EURO\n\nBase: ${base}\n\nTRY: ${rates.TRY}\n\nEUR: ${rates.EUR}\n\nUSD: ${rates.USD}\n\nSAR: ${rates.SAR}\n\nAED: ${rates.AED}\n\nDate: ${date}`
       )
     } else {
       bot.sendMessage(
         chatId,
-        `Base: ${base}\n\nTRY: ${fixed2(rates.TRY)}\n\nEUR: ${fixed2(
-          rates.EUR
-        )}\n\nUSD: ${fixed2(rates.USD)}\n\nSAR: ${fixed2(
-          rates.SAR
-        )}\n\nAED: ${fixed2(rates.AED)}\n\nDate: ${date}`
+        `Base: ${base}\n\nTRY: ${rates.TRY}\n\nEUR: ${rates.EUR}\n\nUSD: ${rates.USD}\n\nSAR: ${rates.SAR}\n\nAED: ${rates.AED}\n\nDate: ${date}`
       )
     }
   } catch (err) {
@@ -183,6 +169,6 @@ function withCommas(value: string) {
   return Number(value).toLocaleString('en-us')
 }
 
-function fixed2(value: number) {
-  return (Math.round(value * 100) / 100).toFixed(2)
-}
+// function fixed2(value: number) {
+//   return (Math.round(value * 100) / 100).toFixed(2)
+// }
