@@ -165,6 +165,25 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
   }
 })
 
+bot.onText(/\/eval (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id
+  const resp = match![1]
+
+  if ( resp.includes("while") || resp.includes("for") ) {
+    bot.sendMessage(chatId, `shut the fuck up`)
+  } else if (resp == '"I\'m a dumb bot"') {
+    bot.sendMessage(chatId, `ur a dumb human`)
+  } else {
+    try {
+      bot.sendMessage(chatId, `${eval(resp)}`)
+    } catch (err) {
+      bot.sendMessage(chatId, `${err}`)
+    }
+  }
+})
+
+
+
 function withCommas(value: string) {
   return Number(value).toLocaleString('en-us')
 }
