@@ -193,13 +193,20 @@ bot.onText(/\/finance (.+)/, async (msg,match) => {
   const chatId: number = msg.chat.id
   var prompt: any = match![1].split(" ")
   var symbol:any
-  // const symbol = prompt[0].toUpperCase()
+  var listed = ([...prompt].pop() === "-list" ? true : false)
+  console.log(prompt);
+  if (listed) {prompt.pop()}
+  console.log(listed, prompt)
+
+
   if (prompt[0].toUpperCase() === "ETH" || prompt[0].toUpperCase() === "BTC") {
     symbol = prompt[0].toUpperCase() + "-USD"
   } else {
     symbol = prompt[0].toUpperCase()
   }
-  const range = prompt[1] || "1mo"
+
+
+  const range    = prompt[1] || "1mo"
   const interval = prompt[2] || "1wk"
 
   console.log({symbols: symbol, range: range, interval: interval});
@@ -217,7 +224,11 @@ bot.onText(/\/finance (.+)/, async (msg,match) => {
   await axios.request(options)
     .then( res => {
       let first = res.data[`${symbol}`]["close"]
-      data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
+      if (listed) {
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => '\n' + num)}`
+      } else {
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
+      }
     })
     .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' + err)
   await bot.sendMessage(chatId, `${data}`)
