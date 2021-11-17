@@ -182,6 +182,39 @@ bot.onText(/\/eval (.+)/, async (msg, match) => {
   }
 })
 
+bot.onText(/\/finance (.+)/, async (msg,match) => {
+  const chatId: number = msg.chat.id
+  var prompt: any = match![1].split(" ")
+
+  const symbol = prompt[0].toUpperCase()
+  const range = prompt[1]
+  const interval = prompt[2]
+
+  console.log({symbols: symbol, range: range, interval: interval});
+  
+  var data:any
+  var options:any = {
+    method: 'GET',
+    url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v8/finance/spark',
+    params: {symbols: symbol, range: range, interval: interval},
+    headers: {
+      'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
+    }
+  };
+  await axios.request(options)
+    .then( res => {
+      // console.log(res.data)
+      let first = res.data[`${symbol}`]["close"]
+
+      data = `${symbol} ${[...first].map(num => ' | ' + num)}`
+      // data=JSON.stringify({symbol, first})
+    })
+    .catch( err => data = err + ' | intervals: [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]"')
+  await bot.sendMessage(chatId, `${data}`)
+  await console.log("done");
+  
+})
 
 bot.onText(/\/axios (.+)/, async (msg, match) => {
   const chatId = msg.chat.id
@@ -202,3 +235,4 @@ function withCommas(value: string) {
 // function fixed2(value: number) {
 //   return (Math.round(value * 100) / 100).toFixed(2)
 // }
+
