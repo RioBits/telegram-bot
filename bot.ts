@@ -183,6 +183,17 @@ bot.onText(/\/eval (.+)/, async (msg, match) => {
 })
 
 
+bot.onText(/\/axios (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id
+  const resp = match![1]
+  var result
+  await axios.get(resp).then(
+    res => result = JSON.stringify(res.data)
+  ).catch(
+    err => result = JSON.stringify(err)
+  )
+  await bot.sendMessage(chatId, `${result}`)
+})  
 
 function withCommas(value: string) {
   return Number(value).toLocaleString('en-us')
