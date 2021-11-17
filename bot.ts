@@ -29,10 +29,17 @@ interface coinbaseApiResponse {
   }
 }
 
+bot.onText(/^\/start$/, async (msg) => {
+  bot.sendMessage(
+    msg.chat.id,
+    `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/finance <asset> <range> <interval>: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
+  )
+})
+
 bot.onText(/^\/help$/, async (msg) => {
   bot.sendMessage(
     msg.chat.id,
-    `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD`
+    `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/finance <asset> <range> <interval>: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
   )
 })
 
@@ -185,8 +192,13 @@ bot.onText(/\/eval (.+)/, async (msg, match) => {
 bot.onText(/\/finance (.+)/, async (msg,match) => {
   const chatId: number = msg.chat.id
   var prompt: any = match![1].split(" ")
-
-  const symbol = prompt[0].toUpperCase()
+  var symbol:any
+  // const symbol = prompt[0].toUpperCase()
+  if (prompt[0].toUpperCase() === "ETH" || prompt[0].toUpperCase() === "BTC") {
+    symbol = prompt[0].toUpperCase() + "-USD"
+  } else {
+    symbol = prompt[0].toUpperCase()
+  }
   const range = prompt[1] || "1mo"
   const interval = prompt[2] || "1wk"
 
@@ -204,13 +216,10 @@ bot.onText(/\/finance (.+)/, async (msg,match) => {
   };
   await axios.request(options)
     .then( res => {
-      // console.log(res.data)
       let first = res.data[`${symbol}`]["close"]
-
       data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
-      // data=JSON.stringify({symbol, first})
     })
-    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo')
+    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' + err)
   await bot.sendMessage(chatId, `${data}`)
   await console.log("done");
   
