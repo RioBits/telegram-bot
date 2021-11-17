@@ -210,10 +210,33 @@ bot.onText(/\/finance (.+)/, async (msg,match) => {
       data = `${symbol} ${[...first].map(num => ' | ' + num)}`
       // data=JSON.stringify({symbol, first})
     })
-    .catch( err => data = err + ' | intervals: [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]"')
+    .catch( err => data = 'either the symbol is wrong or the interval is wrong' + ' | intervals: [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]"')
   await bot.sendMessage(chatId, `${data}`)
   await console.log("done");
   
+})
+
+bot.onText(/\/symbol (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id
+  const resp = match![1]
+  var options: any = {
+    method: 'GET',
+    url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/autocomplete',
+    params: {query: resp, lang: 'en'},
+    headers: {
+      'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
+    }
+  }
+  var data:any
+  await axios.request(options)
+    .then( res => {
+      data = [...res.data["ResultSet"]["Result"]][0].symbol
+    })
+    .catch( err => data = "symbol not found")
+  
+  await bot.sendMessage(chatId, `${data}`)
+  // await console.log("done");
 })
 
 bot.onText(/\/axios (.+)/, async (msg, match) => {
