@@ -218,7 +218,8 @@ bot.onText(/\/finance (.+)/, async (msg,match) => {
 
 bot.onText(/\/symbol (.+)/, async (msg, match) => {
   const chatId = msg.chat.id
-  const resp = match![1]
+  const mesg = match![1].split(" ")
+  const resp = mesg[0]
   var options: any = {
     method: 'GET',
     url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/autocomplete',
@@ -231,7 +232,11 @@ bot.onText(/\/symbol (.+)/, async (msg, match) => {
   var data:any
   await axios.request(options)
     .then( res => {
+      if (mesg[1] === "details"){
+        data = JSON.stringify([...res.data["ResultSet"]["Result"]])
+    } else {
       data = [...res.data["ResultSet"]["Result"]][0].symbol
+    }
     })
     .catch( err => data = "symbol not found")
   
