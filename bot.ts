@@ -29,14 +29,22 @@ interface coinbaseApiResponse {
   }
 }
 
-bot.onText(/^\/start$/, async (msg) => {
+bot.onText(/^\/all$/, (msg) => {
+  bot.sendMessage(
+    msg.chat.id,
+    `@riobits @nyllre @x7thxo @CLK944 @p16d0 [@Mark Zuckerberg](https://www.youtube.com/watch?v=xvFZjo5PgG0)`,
+    { parse_mode: 'MarkdownV2', disable_web_page_preview: true }
+  )
+})
+
+bot.onText(/^\/start$/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
     `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/finance <asset> <range> <interval>: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
   )
 })
 
-bot.onText(/^\/help$/, async (msg) => {
+bot.onText(/^\/help$/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
     `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/finance <asset> <range> <interval>: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
@@ -172,11 +180,11 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
   }
 })
 
-bot.onText(/\/eval (.+)/, async (msg, match) => {
+bot.onText(/\/eval (.+)/, (msg, match) => {
   const chatId = msg.chat.id
   const resp = match![1]
 
-  if ( resp.includes("while") || resp.includes("for") ) {
+  if (resp.includes('while') || resp.includes('for')) {
     bot.sendMessage(chatId, `shut the fuck up`)
   } else if (resp == '"I\'m a dumb bot"') {
     bot.sendMessage(chatId, `ur a dumb human`)
@@ -189,77 +197,87 @@ bot.onText(/\/eval (.+)/, async (msg, match) => {
   }
 })
 
-bot.onText(/\/finance (.+)/, async (msg,match) => {
+bot.onText(/\/finance (.+)/, async (msg, match) => {
   const chatId: number = msg.chat.id
-  var prompt: any = match![1].split(" ")
-  var symbol:any
-  var listed = ([...prompt].pop() === "-list" ? true : false)
-  console.log(prompt);
-  if (listed) {prompt.pop()}
+  var prompt: any = match![1].split(' ')
+  var symbol: any
+  var listed = [...prompt].pop() === '-list'
+  console.log(prompt)
+  if (listed) {
+    prompt.pop()
+  }
   console.log(listed, prompt)
 
-
-  if (prompt[0].toUpperCase() === "ETH" || prompt[0].toUpperCase() === "BTC") {
-    symbol = prompt[0].toUpperCase() + "-USD"
+  if (prompt[0].toUpperCase() === 'ETH' || prompt[0].toUpperCase() === 'BTC') {
+    symbol = prompt[0].toUpperCase() + '-USD'
   } else {
     symbol = prompt[0].toUpperCase()
   }
 
+  const range = prompt[1] || '1mo'
+  const interval = prompt[2] || '1wk'
 
-  const range    = prompt[1] || "1mo"
-  const interval = prompt[2] || "1wk"
+  console.log({ symbols: symbol, range: range, interval: interval })
 
-  console.log({symbols: symbol, range: range, interval: interval});
-  
-  var data:any
-  var options:any = {
+  var data: any
+  var options: any = {
     method: 'GET',
     url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v8/finance/spark',
-    params: {symbols: symbol, range: range, interval: interval},
+    params: { symbols: symbol, range: range, interval: interval },
     headers: {
       'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
-      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
-    }
-  };
-  await axios.request(options)
-    .then( res => {
-      let first = res.data[`${symbol}`]["close"]
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087',
+    },
+  }
+  await axios
+    .request(options)
+    .then((res) => {
+      let first = res.data[`${symbol}`]['close']
       if (listed) {
-        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => '\n' + num)}`
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(
+          (num) => '\n' + num
+        )}`
       } else {
-        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(
+          (num) => ' | ' + num
+        )}`
       }
     })
-    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' + err)
+    .catch(
+      (err) =>
+        (data =
+          'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' +
+          err)
+    )
   await bot.sendMessage(chatId, `${data}`)
-  await console.log("done");
-  
+  await console.log('done')
 })
 
 bot.onText(/\/symbol (.+)/, async (msg, match) => {
   const chatId = msg.chat.id
-  const mesg = match![1].split(" ")
+  const mesg = match![1].split(' ')
   const resp = mesg[0]
   var options: any = {
     method: 'GET',
     url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/autocomplete',
-    params: {query: resp, lang: 'en'},
+    params: { query: resp, lang: 'en' },
     headers: {
       'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
-      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
-    }
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087',
+    },
   }
-  var data:any
-  await axios.request(options)
-    .then( res => {
-      if (mesg[1] === "details"){
-        data = JSON.stringify([...res.data["ResultSet"]["Result"]])
-    } else {
-      data = [...res.data["ResultSet"]["Result"]][0].symbol
-    }
+  var data: any
+  await axios
+    .request(options)
+    .then((res) => {
+      if (mesg[1] === 'details') {
+        data = JSON.stringify([...res.data['ResultSet']['Result']])
+      } else {
+        data = [...res.data['ResultSet']['Result']][0].symbol
+      }
     })
-    .catch( err => data = "symbol not found")
-  
+    .catch((err) => (data = 'symbol not found'))
+
   await bot.sendMessage(chatId, `${data}`)
   // await console.log("done");
 })
@@ -268,13 +286,12 @@ bot.onText(/\/axios (.+)/, async (msg, match) => {
   const chatId = msg.chat.id
   const resp = match![1]
   var result
-  await axios.get(resp).then(
-    res => result = JSON.stringify(res.data)
-  ).catch(
-    err => result = JSON.stringify(err)
-  )
+  await axios
+    .get(resp)
+    .then((res) => (result = JSON.stringify(res.data)))
+    .catch((err) => (result = JSON.stringify(err)))
   await bot.sendMessage(chatId, `${result}`)
-})  
+})
 
 function withCommas(value: string) {
   return Number(value).toLocaleString('en-us')
@@ -283,4 +300,3 @@ function withCommas(value: string) {
 // function fixed2(value: number) {
 //   return (Math.round(value * 100) / 100).toFixed(2)
 // }
-
