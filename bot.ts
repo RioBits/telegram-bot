@@ -29,6 +29,32 @@ interface coinbaseApiResponse {
   }
 }
 
+bot.onText(/^\/scream (.+)$/, (msg, match) => {
+  const chatId = msg.chat.id
+  const resp = Number(match![1])
+
+  if (resp > 10 || resp < 0) {
+    return bot.sendMessage(
+      chatId,
+      `choose between 1 - 10 times\nexample: /scream 99453246239`
+    )
+  }
+
+  let count = 1
+  let scream = setInterval(() => {
+    bot.sendMessage(
+      chatId,
+      `@riobits @nyllre @x7thxo @CLK944 @p16d0 @U_D3L @Sab_o04 <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0">@Mark Zuckerberg</a>`,
+      { parse_mode: 'HTML', disable_web_page_preview: true }
+    )
+
+    if (count === resp) {
+      clearInterval(scream)
+    }
+    count++
+  }, 1000)
+})
+
 bot.onText(/^\/all$/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
