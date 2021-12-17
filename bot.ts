@@ -5,7 +5,6 @@ import TelegramBot = require('node-telegram-bot-api')
 config()
 
 const token = process.env.TOKEN!
-console.log(token)
 
 const bot = new TelegramBot(token, { polling: true })
 
