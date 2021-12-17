@@ -5,6 +5,7 @@ import TelegramBot = require('node-telegram-bot-api')
 config()
 
 const token = process.env.TOKEN!
+console.log(token)
 
 const bot = new TelegramBot(token, { polling: true })
 
@@ -29,7 +30,7 @@ interface coinbaseApiResponse {
   }
 }
 
-bot.onText(/^\/scream (.+)$/, (msg, match) => {
+bot.onText(/^\/scream (.+)$/, (msg: any, match: any) => {
   const chatId = msg.chat.id
   const resp = Number(match![1])
 
@@ -55,7 +56,7 @@ bot.onText(/^\/scream (.+)$/, (msg, match) => {
   }, 1000)
 })
 
-bot.onText(/^\/all$/, (msg) => {
+bot.onText(/^\/all$/, (msg: any) => {
   bot.sendMessage(
     msg.chat.id,
     `@riobits @nyllre @x7thxo @CLK944 @p16d0 [@Mark Zuckerberg](https://www.youtube.com/watch?v=xvFZjo5PgG0)`,
@@ -63,21 +64,21 @@ bot.onText(/^\/all$/, (msg) => {
   )
 })
 
-bot.onText(/^\/start$/, (msg) => {
+bot.onText(/^\/start$/, (msg: any) => {
+  bot.sendMessage(
+    msg.chat.id,
+    `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/fn try 60m 1m: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
+  )
+})
+
+bot.onText(/^\/help$/, (msg:any) => {
   bot.sendMessage(
     msg.chat.id,
     `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/finance <asset> <range> <interval>: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
   )
 })
 
-bot.onText(/^\/help$/, (msg) => {
-  bot.sendMessage(
-    msg.chat.id,
-    `This is a list of all my commands!\n\n/price: Show USD price in: TRY, EUR, SAR, AED\n\n/price <currency>: Show <currency> price in: TRY, EUR, USD, SAR, AED\n\n/crypto: Show BTC USD DOGE price in USD\n\n/crypto <crypto_code>: Show <crypto_code> in USD\n\nAdvanced:\n\n/finance <asset> <range> <interval>: display <asset> changes\n\n/symbol <name> <details:optional>: search for a companies asset name`
-  )
-})
-
-bot.onText(/^\/crypto$/, async (msg) => {
+bot.onText(/^\/crypto$/, async (msg:any) => {
   const chatId = msg.chat.id
 
   const {
@@ -110,7 +111,7 @@ bot.onText(/^\/crypto$/, async (msg) => {
   )
 })
 
-bot.onText(/\/crypto (.+)/, async (msg, match) => {
+bot.onText(/\/crypto (.+)/, async (msg: any, match:any) => {
   const chatId = msg.chat.id
   const resp = match![1].toLowerCase()
   let currency: string
@@ -150,63 +151,80 @@ bot.onText(/\/crypto (.+)/, async (msg, match) => {
 })
 
 bot.onText(/^\/price$/, async (msg) => {
-  const chatId = msg.chat.id
 
-  try {
-    const response = await axios.get<exchangerateApiResponse>(
-      `https://api.exchangerate.host/latest?base=USD`
-    )
-
-    const { success, date, rates } = response.data
-
-    if (response.status !== 200 || !response.data || !success) {
-      throw new Error()
+  var options: any = {
+    method: 'GET',
+    url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote',
+    params: {symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X'},
+    headers: {
+      'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
     }
-
-    bot.sendMessage(
-      chatId,
-      `Choosed default: USD\n\nTRY: ${rates.TRY}\n\nEUR: ${rates.EUR}\n\nSAR: ${rates.SAR}\n\nAED: ${rates.AED}\n\nDate: ${date}`
-    )
-  } catch (err) {
-    console.error(err)
-    bot.sendMessage(chatId, 'ERROR WHILE FETCHING THE DATA')
   }
+
+  var data:any
+  await axios.request(options)
+    .then( res => {
+      data = ""
+
+      let first = res.data['quoteResponse']['result']
+      console.log(first)
+      console.log(first[0])
+      for (let i = 0; i < first.length; i++) {
+        data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n\n`
+      }
+      
+    })
+    .catch( err => data = err )
+
+  await bot.sendMessage(msg.chat.id, `${data}`)
 })
 
 bot.onText(/\/price (.+)/, async (msg, match) => {
-  const chatId = msg.chat.id
-  const resp = match![1].toUpperCase()
+  const prompt: any = match![1].split(" ")[0].toUpperCase()
 
-  try {
-    const response = await axios.get<exchangerateApiResponse>(
-      `https://api.exchangerate.host/latest?base=${resp}`
-    )
-
-    const { success, base, date, rates } = response.data
-
-    if (response.status !== 200 || !response.data || !success) {
-      throw new Error()
+  var options: any = {
+    method: 'GET',
+    url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote',
+    params: {symbols: `${prompt}`},
+    headers: {
+      'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
     }
-
-    // API default if you typed incorrect currency: EURO
-    if (base !== resp) {
-      bot.sendMessage(
-        chatId,
-        `You entered incorrect currency!\ntry something like this:\n\n/price TRY\n\nchoosed default: EURO\n\nBase: ${base}\n\nTRY: ${rates.TRY}\n\nEUR: ${rates.EUR}\n\nUSD: ${rates.USD}\n\nSAR: ${rates.SAR}\n\nAED: ${rates.AED}\n\nDate: ${date}`
-      )
-    } else {
-      bot.sendMessage(
-        chatId,
-        `Base: ${base}\n\nTRY: ${rates.TRY}\n\nEUR: ${rates.EUR}\n\nUSD: ${rates.USD}\n\nSAR: ${rates.SAR}\n\nAED: ${rates.AED}\n\nDate: ${date}`
-      )
-    }
-  } catch (err) {
-    console.error(err)
-    bot.sendMessage(chatId, 'ERROR WHILE FETCHING THE DATA')
   }
+
+  var data:any
+  await axios.request(options)
+    .then( res => {
+      data = ""
+
+      let first = res.data['quoteResponse']['result']
+
+      if (first.length >= 2) {
+
+        for (let i = 0; i < first.length; i++) {
+          data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n\n`
+        }
+
+      } else {
+        data = `${first[0]['shortName']}: ${first[0]['regularMarketPrice']}`
+      }
+    })
+    .catch( err => data = `wrong symbol, try searching with /symbol` )
+
+  await bot.sendMessage(msg.chat.id, `${data}`)
 })
 
-bot.onText(/\/eval (.+)/, (msg, match) => {
+bot.onText(/\/sendToGroup (.+)/, async (msg, match) => {
+  const chatId: number = msg.chat.id
+  const prompt: any = match![1].split(" =>")
+  const target = prompt[0]
+  const toSend = prompt[1]
+  // -1001729428661
+  await bot.sendMessage(target, `${toSend}`)
+})
+
+bot.onText(/\/eval (.+)/, (msg:any, match:any) => {
   const chatId = msg.chat.id
   const resp = match![1]
 
@@ -223,63 +241,81 @@ bot.onText(/\/eval (.+)/, (msg, match) => {
   }
 })
 
-bot.onText(/\/finance (.+)/, async (msg, match) => {
+bot.onText(/^\/fn$/, async (msg) => {
   const chatId: number = msg.chat.id
-  var prompt: any = match![1].split(' ')
-  var symbol: any
-  var listed = [...prompt].pop() === '-list'
-  console.log(prompt)
-  if (listed) {
-    prompt.pop()
-  }
-  console.log(listed, prompt)
+  var symbol: string = "TRY=X"
+  var range: string = "15m"
+  var interval: string = "1m"
+  var listed = true
 
-  if (prompt[0].toUpperCase() === 'ETH' || prompt[0].toUpperCase() === 'BTC') {
-    symbol = prompt[0].toUpperCase() + '-USD'
+  var data:any
+  var options:any = {
+    method: 'GET',
+    url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v8/finance/spark',
+    params: {symbols: symbol, range: range, interval: interval},
+    headers: {
+      'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
+    }
+  }
+  await axios.request(options)
+    .then( res => {
+      let first = res.data[`${symbol}`]["close"]
+      if (listed) {
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => '\n' + num)}`
+      } else {
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
+      }
+    })
+    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 120m, 1d, 5d, 1wk, 1mo, 3mo' + err)
+  await bot.sendMessage(chatId, `${data}`)
+});
+
+bot.onText(/\/fn (.+)/, async (msg,match) => {
+  const chatId: number = msg.chat.id
+  var prompt: any = match![1].split(" ")
+  var symbol     = prompt[0] || "try=x"
+  const range    = prompt[1] || "15m"
+  const interval = prompt[2] || "1m"
+  var listed = ([...prompt].pop() === "-list" ? true : false)
+  if (listed) {prompt.pop()}
+
+
+  if (prompt[0].toUpperCase() === "ETH" || prompt[0].toUpperCase() === "BTC") {
+    symbol = prompt[0].toUpperCase() + "-USD"
+  } else if (prompt[0].toUpperCase() === "TRY") {
+    symbol = prompt[0].toUpperCase() + "=x"
   } else {
     symbol = prompt[0].toUpperCase()
   }
 
-  const range = prompt[1] || '1mo'
-  const interval = prompt[2] || '1wk'
 
-  console.log({ symbols: symbol, range: range, interval: interval })
-
-  var data: any
-  var options: any = {
+  var data:any
+  var options:any = {
     method: 'GET',
     url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v8/finance/spark',
-    params: { symbols: symbol, range: range, interval: interval },
+    params: {symbols: symbol, range: range, interval: interval},
     headers: {
       'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
-      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087',
-    },
-  }
-  await axios
-    .request(options)
-    .then((res) => {
-      let first = res.data[`${symbol}`]['close']
+      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
+    }
+  };
+
+  await axios.request(options)
+    .then( res => {
+      let first = res.data[`${symbol}`]["close"]
       if (listed) {
-        data = `${symbol} (${range} - ${interval}) ${[...first].map(
-          (num) => '\n' + num
-        )}`
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => '\n' + num)}`
       } else {
-        data = `${symbol} (${range} - ${interval}) ${[...first].map(
-          (num) => ' | ' + num
-        )}`
+        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
       }
     })
-    .catch(
-      (err) =>
-        (data =
-          'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' +
-          err)
-    )
+    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' + err)
   await bot.sendMessage(chatId, `${data}`)
-  await console.log('done')
+  
 })
 
-bot.onText(/\/symbol (.+)/, async (msg, match) => {
+bot.onText(/\/symbol (.+)/, async (msg:any, match:any) => {
   const chatId = msg.chat.id
   const mesg = match![1].split(' ')
   const resp = mesg[0]
