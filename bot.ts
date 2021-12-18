@@ -184,11 +184,10 @@ bot.onText(/^\/price$/, async (msg) => {
 
 bot.onText(/\/price (.+)/, async (msg, match) => {
   var prompt: any = match![1].split(" ")[0].toUpperCase()
-  console.log(prompt)
-  prompt = prompt.replace('TRY', 'TRY=X')
   prompt = prompt.replace('BTC', 'BTC-USD')
   prompt = prompt.replace('ETH', 'ETH-USD')
   prompt = prompt.replace('DOGE', 'DOGE-USD')
+  prompt = prompt.replace('TRY', 'TRY=X')
   console.log(prompt)
   var options: any = {
     method: 'GET',
@@ -199,23 +198,18 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
       'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087'
     }
   }
-
   var data:any
   await axios.request(options)
     .then( res => {
       data = ""
 
       let first = res.data['quoteResponse']['result']
-      console.log(first)
-
       if (first.length >= 2) {
-
         for (let i = 0; i < first.length; i++) {
-          data += `${first[i]['shortName']}: ${first[i]["regularMarketPrice"]} \n${first[i]['regularMarketDayRange']} \n\n`
+          data += `${first[i]['shortName']}: ${withCommas(first[i]["regularMarketPrice"])} \n${first[i]['regularMarketDayRange']}\n\n`
         }
-
       } else {
-        data = `${first[0]['shortName']}: ${first[0]['regularMarketPrice']}`
+        data = `${first[0]['shortName']}: ${withCommas(first[0]['regularMarketPrice'])}`
       }
     })
     .catch( err => data = `wrong symbol, try searching with /symbol` )
