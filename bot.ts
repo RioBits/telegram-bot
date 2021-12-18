@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { config } from 'dotenv'
 import TelegramBot = require('node-telegram-bot-api')
+import { stringify } from 'querystring'
 
 config()
 
@@ -141,7 +142,6 @@ bot.onText(/\/crypto (.+)/, async (msg: any, match:any) => {
 
     bot.sendMessage(chatId, `${data.base} => USD: ${withCommas(data.amount)}`)
   } catch (err) {
-    console.error(err)
     bot.sendMessage(
       chatId,
       'Please enter a valid cryptocurrency: BTC/ETH/DOGE etc..'
@@ -168,9 +168,8 @@ bot.onText(/^\/price$/, async (msg) => {
 
       let first = res.data['quoteResponse']['result']
       console.log(first)
-      console.log(first[0])
       for (let i = 0; i < first.length; i++) {
-        data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n\n`
+        data += `${first[i]['shortName']}: ${first[i]["regularMarketPrice"]} \n${first[i]['regularMarketDayRange']} \n\n`
       }
       
     })
@@ -180,8 +179,13 @@ bot.onText(/^\/price$/, async (msg) => {
 })
 
 bot.onText(/\/price (.+)/, async (msg, match) => {
-  const prompt: any = match![1].split(" ")[0].toUpperCase()
-
+  var prompt: any = match![1].split(" ")[0].toUpperCase()
+  console.log(prompt)
+  prompt = prompt.replace('TRY', 'TRY=X')
+  prompt = prompt.replace('BTC', 'BTC-USD')
+  prompt = prompt.replace('ETH', 'ETH-USD')
+  prompt = prompt.replace('DOGE', 'DOGE-USD')
+  console.log(prompt)
   var options: any = {
     method: 'GET',
     url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote',
@@ -198,6 +202,7 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
       data = ""
 
       let first = res.data['quoteResponse']['result']
+      console.log(first)
 
       if (first.length >= 2) {
 
@@ -243,8 +248,8 @@ bot.onText(/\/eval (.+)/, (msg:any, match:any) => {
 bot.onText(/^\/fn$/, async (msg) => {
   const chatId: number = msg.chat.id
   var symbol: string = "TRY=X"
-  var range: string = "15m"
-  var interval: string = "1m"
+  var range: string = "4h"
+  var interval: string = "15m"
   var listed = true
 
   var data:any
@@ -266,16 +271,16 @@ bot.onText(/^\/fn$/, async (msg) => {
         data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
       }
     })
-    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 120m, 1d, 5d, 1wk, 1mo, 3mo' + err)
+    .catch( err => data = 'either the symbol is wrong or the interval is wrong \nintervals: 1m, 2m, 5m, 15m,\n30m, 60m, 90m, 120m,\n1d, 5d, 1wk, 1mo, 3mo\n' + err)
   await bot.sendMessage(chatId, `${data}`)
 });
 
 bot.onText(/\/fn (.+)/, async (msg,match) => {
   const chatId: number = msg.chat.id
   var prompt: any = match![1].split(" ")
-  var symbol     = prompt[0] || "try=x"
-  const range    = prompt[1] || "15m"
-  const interval = prompt[2] || "1m"
+  var symbol     = prompt[0] || "TRY=X//"
+  const range    = prompt[1] || "4h"
+  const interval = prompt[2] || "30m"
   var listed = ([...prompt].pop() === "-list" ? true : false)
   if (listed) {prompt.pop()}
 
@@ -283,11 +288,12 @@ bot.onText(/\/fn (.+)/, async (msg,match) => {
   if (prompt[0].toUpperCase() === "ETH" || prompt[0].toUpperCase() === "BTC") {
     symbol = prompt[0].toUpperCase() + "-USD"
   } else if (prompt[0].toUpperCase() === "TRY") {
-    symbol = prompt[0].toUpperCase() + "=x"
+    symbol = prompt[0].toUpperCase() + "=X"
   } else {
     symbol = prompt[0].toUpperCase()
   }
-
+  
+  console.table({"prompt": prompt, "symbol": symbol})
 
   var data:any
   var options:any = {
@@ -309,7 +315,7 @@ bot.onText(/\/fn (.+)/, async (msg,match) => {
         data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
       }
     })
-    .catch( err => data = 'either the symbol is wrong or the interval is wrong | intervals: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo' + err)
+    .catch( err => data = 'either the symbol is wrong or the interval is wrong \nintervals: \n  1m, 2m, 5m, 15m, 30m\n  60m, 90m, 120m, 4h\n  1d, 5d, 1wk, 1mo, 3mo\n' + err)
   await bot.sendMessage(chatId, `${data}`)
   
 })
@@ -331,16 +337,19 @@ bot.onText(/\/symbol (.+)/, async (msg:any, match:any) => {
   await axios
     .request(options)
     .then((res) => {
-      if (mesg[1] === 'details') {
-        data = JSON.stringify([...res.data['ResultSet']['Result']])
-      } else {
-        data = [...res.data['ResultSet']['Result']][0].symbol
+      if (true) {
+        data = (
+          [...res.data['ResultSet']['Result']]
+          .map(result => result["symbol"] + ' => ' + result["name"]).join('\n')
+        )
       }
+      // } else {
+      //   data = [...res.data['ResultSet']['Result']][0].symbol
+      // }
     })
     .catch((err) => (data = 'symbol not found'))
 
   await bot.sendMessage(chatId, `${data}`)
-  // await console.log("done");
 })
 
 bot.onText(/\/axios (.+)/, async (msg, match) => {
