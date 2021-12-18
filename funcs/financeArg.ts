@@ -34,7 +34,8 @@ async function fnArgs(match:any) {
       if (listed) {
         data = `${symbol} (${range} - ${interval}) ${[...first].map(num => '\n' + num)}`
       } else {
-        data = `${symbol} (${range} - ${interval}) ${[...first].map(num => ' | ' + num)}`
+        console.log(res.data[symbol])
+        data = `${symbol} (${range} - ${interval}) ${res.data[symbol]['regularMarketDayRange']} \n ${[...first].map(num => ' | ' + num)}`
       }
     })
     .catch( err => data = 'either the symbol is wrong or the interval is wrong \nintervals: \n  1m, 2m, 5m, 15m, 30m\n  60m, 90m, 120m, 4h\n  1d, 5d, 1wk, 1mo, 3mo\n' + err)

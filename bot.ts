@@ -211,7 +211,7 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
       if (first.length >= 2) {
 
         for (let i = 0; i < first.length; i++) {
-          data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n\n`
+          data += `${first[i]['shortName']}: ${first[i]["regularMarketPrice"]} \n${first[i]['regularMarketDayRange']} \n\n`
         }
 
       } else {
