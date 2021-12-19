@@ -3,7 +3,7 @@ import Command from '../../types/command'
 const command: Command = {
   name: 'all',
   description: 'Mention all members on RE Group. eg: /all, /all 2',
-  usage: '<many_times?>',
+  usage: '<manytimes?>',
   execute(bot, chatId, args) {
     const resp = Number(args[0])
     const mentions = '@riobits @nyllre @x7thxo @CLK944 @p16d0 @U_D3L @Sab_o04'
