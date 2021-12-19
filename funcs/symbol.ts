@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-async function symb(match:any) {
-  const mesg = match![1].split(' ')
+async function symb(args: string[]) {
+  const mesg = args
   const resp = mesg[0]
   var options: any = {
     method: 'GET',
@@ -17,10 +17,9 @@ async function symb(match:any) {
     .request(options)
     .then((res) => {
       if (true) {
-        data = (
-          [...res.data['ResultSet']['Result']]
-          .map(result => result["symbol"] + ' => ' + result["name"]).join('\n')
-        )
+        data = [...res.data['ResultSet']['Result']]
+          .map((result) => result['symbol'] + ' => ' + result['name'])
+          .join('\n')
       }
       // } else {
       //   data = [...res.data['ResultSet']['Result']][0].symbol
