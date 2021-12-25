@@ -1,10 +1,6 @@
 import fs from 'fs'
-import axios from 'axios'
 import { config } from 'dotenv'
 import TelegramBot = require('node-telegram-bot-api')
-
-import symb from './funcs/symbol'
-import fnArgs from './funcs/financeArg'
 import Command from './types/command'
 
 config()
