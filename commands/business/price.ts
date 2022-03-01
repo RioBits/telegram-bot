@@ -27,7 +27,7 @@ const command: Command = {
         data = ''
 
         let first = response.data['quoteResponse']['result']
-        console.log(first)
+
         for (let i = 0; i < first.length; i++) {
           data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n${first[i]['regularMarketDayRange']} \n\n`
         }
@@ -43,7 +43,7 @@ const command: Command = {
     prompt = prompt.replace('ETH', 'ETH-USD')
     prompt = prompt.replace('DOGE', 'DOGE-USD')
     prompt = prompt.replace('TRY', 'TRY=X')
-    console.log(prompt)
+
     var options: any = {
       method: 'GET',
       url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote',
