@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { withCommas } from '../../funcs/utility'
 import Command from '../../types/command'
+import fetchPrices from '../../funcs/fetchPrices'
 
 const command: Command = {
   name: 'price',
@@ -8,35 +9,12 @@ const command: Command = {
   usage: '<currency>',
   async execute(bot, chatId, args) {
     if (!args || !args.length) {
-      const options: any = {
-        method: 'GET',
-        url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote',
-        params: { symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X' },
-        headers: {
-          'x-rapidapi-host':
-            'stock-data-yahoo-finance-alternative.p.rapidapi.com',
-          'x-rapidapi-key':
-            '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087',
-        },
-      }
-
-      let data: any
-
-      try {
-        const response = await axios.request(options)
-        data = ''
-
-        let first = response.data['quoteResponse']['result']
-
-        for (let i = 0; i < first.length; i++) {
-          data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n${first[i]['regularMarketDayRange']} \n\n`
-        }
-      } catch (err) {
-        data = err
-      }
-
+      const data = await fetchPrices({
+        symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X',
+      })
       return bot.sendMessage(chatId, `${data}`)
     }
+
     let prompt = args[0].split(' ')[0].toUpperCase()
 
     prompt = prompt.replace('BTC', 'BTC-USD')

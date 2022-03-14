@@ -1,8 +1,8 @@
 import fs from 'fs'
 import { config } from 'dotenv'
-import axios from 'axios'
 import TelegramBot from 'node-telegram-bot-api'
 import Command from './types/command'
+import fetchPrices from './funcs/fetchPrices'
 
 config()
 
@@ -25,40 +25,16 @@ for (const folder of commandFolders) {
   }
 }
 
-// TODO: reusable function
+const ONE_HOUR = 1000 * 60 * 60
+
 setInterval(() => {
   const fetchData = async () => {
-    const options: any = {
-      method: 'GET',
-      url: 'https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote',
-      params: { symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X' },
-      headers: {
-        'x-rapidapi-host':
-          'stock-data-yahoo-finance-alternative.p.rapidapi.com',
-        'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087',
-      },
-    }
-
-    let data: any
-
-    try {
-      const response = await axios.request(options)
-      data = ''
-
-      let first = response.data['quoteResponse']['result']
-
-      for (let i = 0; i < first.length; i++) {
-        data += `${first[i]['shortName']}: ${first[i]['regularMarketPrice']} \n${first[i]['regularMarketDayRange']} \n\n`
-      }
-    } catch (err) {
-      data = err
-    }
-
+    const data = await fetchPrices()
     return bot.sendMessage(-643754688, `${data}`)
   }
 
   fetchData()
-}, 1000 * 60 * 60)
+}, ONE_HOUR)
 
 bot.on('polling_error', console.log)
 

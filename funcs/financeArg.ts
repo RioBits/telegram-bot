@@ -39,7 +39,6 @@ async function fnArgs(args: string[]) {
             num != null ? '\n' + num : ''
           )}`
         } else {
-          console.log(res.data[symbol])
           data = `${symbol} (${range} - ${interval}) \n ${[...first].map(
             (num) => ' | ' + num
           )}`
