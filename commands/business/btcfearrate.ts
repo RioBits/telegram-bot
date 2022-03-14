@@ -3,7 +3,7 @@ import Command from '../../types/command'
 
 const command: Command = {
   name: 'btcfearrate',
-  description: 'search for a companies asset name.',
+  description: 'show bitcoin fear rate.',
   aliases: ['btcfr'],
   async execute(bot, chatId) {
     const { data } = await axios.get('https://api.alternative.me/fng')
