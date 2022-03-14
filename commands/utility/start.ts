@@ -8,11 +8,11 @@ const command: Command = {
   usage: '[command_name?]',
   execute(bot, chatId, args) {
     const data = []
-    const allCommands = botCommands.map((obj) => obj.name)
+    const allCommands = botCommands.map((obj) => `/${obj.name}`)
 
     if (!args.length) {
       data.push("Here's a list of all my commands: ")
-      data.push(`<b>${allCommands.join(', ')}</b>`)
+      data.push(`<b>${allCommands.join('\n')}</b>`)
       data.push(
         `\nYou can send <code>/start [command_name?]</code> to get info on a specific command!`
       )

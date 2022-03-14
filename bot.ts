@@ -41,7 +41,11 @@ bot.on('message', async (msg) => {
   if (!msg.text || !msg.text.startsWith('/')) return
 
   const args = msg.text.slice(1).trim().split(/ +/)
-  const commandName = args.shift()!.toLowerCase()
+  let commandName = args.shift()!.toLowerCase()
+
+  if (commandName.includes('@')) {
+    commandName = commandName.split('@').splice(0, 1, '').join()
+  }
 
   const command: Command | undefined =
     botCommands.find((obj) => obj.name === commandName)?.command ||
