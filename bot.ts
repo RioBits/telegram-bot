@@ -2,6 +2,7 @@ import fs from 'fs'
 import { config } from 'dotenv'
 import TelegramBot from 'node-telegram-bot-api'
 import Command from './types/command'
+import eachHour from './funcs/eachHour'
 import fetchPrices from './funcs/fetchPrices'
 
 config()
@@ -25,16 +26,12 @@ for (const folder of commandFolders) {
   }
 }
 
-const ONE_HOUR = 1000 * 60 * 60
-
-setInterval(() => {
-  const fetchData = async () => {
-    const data = await fetchPrices()
-    return bot.sendMessage(-643754688, `${data}`)
-  }
-
-  fetchData()
-}, ONE_HOUR)
+eachHour(async () => {
+  const data = await fetchPrices({
+    symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X',
+  })
+  return bot.sendMessage(Number(process.env.INVESTING_CHANNEL_ID), `${data}`)
+})
 
 bot.on('polling_error', console.log)
 

@@ -7,7 +7,7 @@ const command: Command = {
   args: true,
   usage: '<message>',
   execute(bot, _, args) {
-    bot.sendMessage(-1001729428661, args.join(' '))
+    bot.sendMessage(Number(process.env.MAIN_GROUP_ID), args.join(' '))
   },
 }
 

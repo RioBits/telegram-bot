@@ -25,7 +25,7 @@ async function fnArgs(args: string[]) {
     params: { symbols: symbol, range: range, interval: interval },
     headers: {
       'x-rapidapi-host': 'stock-data-yahoo-finance-alternative.p.rapidapi.com',
-      'x-rapidapi-key': '27f4a46847mshdb18aa5242e2e64p1fa70fjsnce9d0b4b1087',
+      'x-rapidapi-key': process.env.YAHOO_FA_TOKEN!,
     },
   }
 
