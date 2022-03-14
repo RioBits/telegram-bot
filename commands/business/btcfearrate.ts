@@ -9,7 +9,7 @@ const command: Command = {
     const { data } = await axios.get('https://api.alternative.me/fng')
     bot.sendMessage(
       chatId,
-      `<b>Bitcoin Fear Rate 🔎:</b>\n<em>${data.data[0].value_classification}</em>`,
+      `<b>Bitcoin Fear Rate: </b>\n<em>${data.data[0].value_classification}</em>`,
       { parse_mode: 'HTML' }
     )
   },
