@@ -2,7 +2,7 @@ import fs from 'fs'
 import { config } from 'dotenv'
 import TelegramBot from 'node-telegram-bot-api'
 import Command from './types/command'
-import executeAfterMilliseconds from './funcs/executeAfterMilliseconds'
+import { executeAfterMilliseconds } from './funcs/utility'
 import fetchPrices from './funcs/fetchPrices'
 
 config()
