@@ -29,7 +29,10 @@ puppeteer.use(StealthPlugin())
 
 export default async function checkOffers(bot: TelegramBot) {
   try {
-    const browser = await puppeteer.launch({ headless: true })
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox'],
+    })
     const page = await browser.newPage()
 
     await page.goto(URL)
