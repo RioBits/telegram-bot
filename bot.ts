@@ -4,6 +4,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import Command from './types/command'
 import { executeAfterMilliseconds } from './funcs/utility'
 import fetchPrices from './funcs/fetchPrices'
+import checkOffers from './funcs/checkOffers'
 
 config()
 
@@ -32,6 +33,10 @@ executeAfterMilliseconds(async () => {
   })
   return bot.sendMessage(Number(process.env.INVESTING_CHANNEL_ID), `${data}`)
 }, 1000 * 60 * 60) // 1 Hour
+
+executeAfterMilliseconds(async () => {
+  await checkOffers(bot)
+}, 1000 * 60 * 40) // 40 min
 
 bot.on('polling_error', console.log)
 
