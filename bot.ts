@@ -43,7 +43,7 @@ bot.on('message', async (msg) => {
   const args = msg.text.slice(1).trim().split(/ +/)
   let commandName = args.shift()!.toLowerCase()
 
-  if (commandName.includes('@')) {
+  if (commandName.includes('@redeast_system_bot')) {
     commandName = commandName.split('@').splice(0, 1, '').join()
   }
 
