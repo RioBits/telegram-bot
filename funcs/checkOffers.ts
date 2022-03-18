@@ -70,7 +70,7 @@ export default async function checkOffers(bot: TelegramBot) {
       } </b></a>\n${offer.description.trim()}\n\n\n`
     })
 
-    bot.sendMessage(Number(process.env.MAIN_GROUP_ID), message, {
+    bot.sendMessage(Number(process.env.OFFERS_CHANNEL), message, {
       parse_mode: 'HTML',
     })
 
