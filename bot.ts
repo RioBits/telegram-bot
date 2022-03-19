@@ -27,16 +27,18 @@ for (const folder of commandFolders) {
   }
 }
 
+const ONE_HOUR = 1000 * 60 * 60
+
 executeAfterMilliseconds(async () => {
   const data = await fetchPrices({
     symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X',
   })
   return bot.sendMessage(Number(process.env.INVESTING_CHANNEL_ID), `${data}`)
-}, 1000 * 60 * 60) // 1 Hour
+}, ONE_HOUR)
 
 executeAfterMilliseconds(async () => {
   await checkOffers(bot)
-}, 1000 * 60 * 40) // 40 min
+}, ONE_HOUR)
 
 bot.on('polling_error', console.log)
 
