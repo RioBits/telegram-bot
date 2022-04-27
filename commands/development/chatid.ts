@@ -1,4 +1,3 @@
-import symb from '../../funcs/symbol'
 import Command from '../../types/command'
 
 const command: Command = {
