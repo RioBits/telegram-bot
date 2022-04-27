@@ -11,7 +11,7 @@ const command: Command = {
     const allCommands = botCommands.map((obj) => `/${obj.name}`)
 
     if (!args.length) {
-      data.push("Here's a list of all my commands: ")
+      data.push("Here's a list of all my commands:\n")
       data.push(`<b>${allCommands.join('\n')}</b>`)
       data.push(
         `\nYou can send <code>/start [command_name?]</code> to get info on a specific command!`

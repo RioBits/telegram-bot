@@ -1,10 +1,11 @@
 import fs from 'fs'
 import { config } from 'dotenv'
-import TelegramBot from 'node-telegram-bot-api'
+import TelegramBot, { InlineKeyboardButton } from 'node-telegram-bot-api'
 import Command from './types/command'
 import { executeAfterMilliseconds } from './funcs/utility'
 import fetchPrices from './funcs/fetchPrices'
 import checkOffers from './funcs/checkOffers'
+import axios from 'axios'
 
 config()
 
@@ -30,7 +31,7 @@ for (const folder of commandFolders) {
 const ONE_HOUR = 1000 * 60 * 60
 
 executeAfterMilliseconds(async () => {
-  const data = await fetchPrices({
+  const data: string = await fetchPrices({
     symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X',
   })
   return bot.sendMessage(Number(process.env.INVESTING_CHANNEL_ID), `${data}`)
@@ -41,6 +42,88 @@ executeAfterMilliseconds(async () => {
 }, ONE_HOUR)
 
 bot.on('polling_error', console.log)
+
+// TODO: let's make better file stracture for this feature
+bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
+  const action = callbackQuery.data
+  const msg = callbackQuery.message as TelegramBot.Message
+  console.log(action)
+
+  const buttons: InlineKeyboardButton[][] = [
+    [
+      {
+        text: 'BTC 💰',
+        callback_data: 'BTC-USD',
+      },
+    ],
+    [
+      {
+        text: 'ETH 💰',
+        callback_data: 'ETH-USD',
+      },
+    ],
+    [
+      {
+        text: 'DOGE 💰',
+        callback_data: 'DOGE-USD',
+      },
+    ],
+  ]
+
+  let opts: any = {
+    chat_id: msg.chat.id,
+    message_id: msg.message_id,
+  }
+
+  let data = ''
+
+  switch (action) {
+    case 'BTC-USD':
+      data = await fetchPrices({ symbols: 'BTC-USD' })
+      opts = {
+        ...opts,
+        reply_markup: {
+          inline_keyboard: buttons,
+        },
+      }
+      break
+    case 'ETH-USD':
+      data = await fetchPrices({ symbols: 'ETH-USD' })
+      opts = {
+        ...opts,
+        reply_markup: {
+          inline_keyboard: buttons,
+        },
+      }
+      break
+    case 'DOGE-USD':
+      data = await fetchPrices({ symbols: 'DOGE-USD' })
+      opts = {
+        ...opts,
+        reply_markup: {
+          inline_keyboard: buttons,
+        },
+      }
+      break
+    case 'meme':
+      const { data: meme } = await axios.get(
+        'https://meme-api.herokuapp.com/gimme'
+      )
+      data = `[${meme.title}](${meme.preview[meme.preview.length - 1]})`
+      opts = {
+        ...opts,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{ text: 'Meme 🐜', callback_data: 'meme' }]],
+        },
+      }
+      break
+    default:
+      data = 'Unknown button'
+  }
+
+  bot.editMessageText(data, opts)
+})
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id
