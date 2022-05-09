@@ -29,13 +29,18 @@ for (const folder of commandFolders) {
 }
 
 const ONE_HOUR = 1000 * 60 * 60
+const HALF_HOUR = 1000 * 60 * 30
 
 executeAfterMilliseconds(async () => {
   const data: string = await fetchPrices({
     symbols: 'TRY=X,BTC-USD,ETH-USD,EURUSD=X',
   })
-  return bot.sendMessage(Number(process.env.INVESTING_CHANNEL_ID), `${data}`)
-}, ONE_HOUR)
+  // return bot.sendMessage(+process.env.INVESTING_CHANNEL_ID!, 'bruh')
+  return bot.editMessageText(data, {
+    chat_id: process.env.INVESTING_CHANNEL_ID,
+    message_id: 1276,
+  })
+}, HALF_HOUR)
 
 executeAfterMilliseconds(async () => {
   await checkOffers(bot)
@@ -47,7 +52,6 @@ bot.on('polling_error', console.log)
 bot.on('callback_query', async function onCallbackQuery(callbackQuery) {
   const action = callbackQuery.data
   const msg = callbackQuery.message as TelegramBot.Message
-  console.log(action)
 
   const buttons: InlineKeyboardButton[][] = [
     [
